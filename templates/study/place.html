@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ place.name }}</title>
+    <link rel="stylesheet" href="{% static 'styles/styles.css' %}">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 450px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>{{ place.name }}</h1>
+        <p>{{ place.location }}</p>
+    </header>
+    <div class="container">
+        <div class="main-content">
+            <section class="availability">
+                <h2>{{ place.seat }} seats available</h2>
+            </section>
+            <section class="photos">
+                <img class="place-img" src="{{ place.photo.url }}" alt="{{ place.name }}" width="10">
+            </section>
+            <section class="info">
+                <h2>Hours</h2>
+                <p>{{ place.opening_hours }}</p>
+                <h2>About</h2>
+                <p>{{ place.description }}</p>
+            </section>
+        </div>
+        <aside class="map" id="map">
+            <!-- Map will be rendered here -->
+        </aside>
+    </div>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Fetch coordinates from Django template
+            var latitude = parseFloat("{{ place.location.lat|default:41.3111 }}");
+            var longitude = parseFloat("{{ place.location.lng|default:69.2797 }}");
+
+            // Initialize the map
+            var map = L.map('map').setView([latitude, longitude], 15);
+
+            // Add OpenStreetMap tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Add a marker for the place
+            L.marker([latitude, longitude]).addTo(map)
+                .bindPopup('{{ place.name }}')
+                .openPopup();
+        });
+    </script>
+</body>
+</html>
